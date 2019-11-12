@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Caching;
 using Computer_Science_Final_Task.Models;
 using GalaSoft.MvvmLight.Views;
 
@@ -14,6 +15,7 @@ namespace Computer_Science_Final_Task.ViewModels
             builder.RegisterType<NavigationService>().As<INavigationService>().InstancePerLifetimeScope();
             builder.RegisterType<MainPageViewModel>().AsSelf().InstancePerDependency();
             builder.RegisterType<MainPageModel>().As<IMainPageModel>().InstancePerDependency();
+            builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerLifetimeScope();
             Container = builder.Build();
         }
 
