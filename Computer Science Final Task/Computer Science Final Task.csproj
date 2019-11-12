@@ -123,6 +123,8 @@
     <Compile Include="Content\ImageContent.cs" />
     <Compile Include="Content\TextContent.cs" />
     <Compile Include="Content\ContentTypes.cs" />
+    <Compile Include="Models\MainPageModelWithCaching.cs" />
+    <Compile Include="Models\History.cs" />
     <Compile Include="Models\IMainPageModel.cs" />
     <Compile Include="Models\MainPageModel.cs" />
     <Compile Include="Utilities\CommandHandler.cs" />
@@ -176,6 +178,10 @@
     <ProjectReference Include="..\Caching\Caching.csproj">
       <Project>{54466bd6-e70a-4143-a497-aeae24bb9177}</Project>
       <Name>Caching</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj">
+      <Project>{6609fbf7-0f0c-4dfc-badb-211081ace989}</Project>
+      <Name>DataAccessLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
