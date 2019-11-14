@@ -129,7 +129,6 @@
     <Compile Include="Models\MainPageModel.cs" />
     <Compile Include="Utilities\CommandHandler.cs" />
     <Compile Include="ViewModels\MainPageViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelContainer.cs" />
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
