@@ -183,6 +183,14 @@
       <Project>{6609fbf7-0f0c-4dfc-badb-211081ace989}</Project>
       <Name>DataAccessLayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Logging.FileModule\Logging.FileOutput.csproj">
+      <Project>{b1eb30d3-9744-45cc-948e-b9b5d31b8c42}</Project>
+      <Name>Logging.FileOutput</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{dfa4c05d-54da-413d-bc3f-61de42f1bf58}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
