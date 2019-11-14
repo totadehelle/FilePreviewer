@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Computer_Science_Final_Task.Content;
 using Computer_Science_Final_Task.ViewModels;
 
@@ -11,8 +12,8 @@ namespace Computer_Science_Final_Task.Models
         int TotalFilesNumber { get; }
         bool NextFileExists { get; }
         bool PreviousFileExists { get; }
-        Task<IContent> GetNewFile(string path);
-        Task<IContent> GetNextFile();
-        Task<IContent> GetPreviousFile();
+        Task<IContent> GetNewFile(string path, CancellationToken token);
+        Task<IContent> GetNextFile(CancellationToken token);
+        Task<IContent> GetPreviousFile(CancellationToken token);
     }
 }

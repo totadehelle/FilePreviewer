@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows.Input;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Media.Imaging;
@@ -14,8 +15,11 @@ namespace Computer_Science_Final_Task.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         private readonly IMainPageModel _model;
-        private readonly Dictionary<ContentTypes, Action<IContent>> _contentShowers =
-            new Dictionary<ContentTypes, Action<IContent>>();
+        private readonly Dictionary<ContentTypes, Action<IContent>> _contentShowers;
+
+        private CancellationTokenSource _previewCommandTokenSource;
+        private CancellationTokenSource _nextCommandTokenSource;
+        private CancellationTokenSource _previousCommandTokenSource;
 
         #region Binding_Properties
 
@@ -101,8 +105,11 @@ namespace Computer_Science_Final_Task.ViewModels
         public MainPageViewModel(IMainPageModel model)
         {
             _model = model;
-            _contentShowers.Add(ContentTypes.Text, ShowText);
-            _contentShowers.Add(ContentTypes.Image, ShowImage);
+            _contentShowers = new Dictionary<ContentTypes, Action<IContent>>
+            {
+                {ContentTypes.Text, ShowText}, 
+                {ContentTypes.Image, ShowImage}
+            };
         }
         
         #region Commands
@@ -112,12 +119,16 @@ namespace Computer_Science_Final_Task.ViewModels
         {
             try
             {
+                _previousCommandTokenSource?.Cancel();
+                _nextCommandTokenSource?.Cancel();
+                _previewCommandTokenSource = new CancellationTokenSource();
                 if (!ValidatePath(path))
                 {
                     await new MessageDialog($"{path} is not valid file path").ShowAsync();
                     return;
                 }
-                var content = await _model.GetNewFile(path);
+
+                var content = await _model.GetNewFile(path, _previewCommandTokenSource.Token);
                 ShowContent(content);
                 SwitchButtons();
                 RefreshPagination();
@@ -126,6 +137,12 @@ namespace Computer_Science_Final_Task.ViewModels
             catch (Exception e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
+            }
+            finally
+            {
+                var oldTokenSource = _previewCommandTokenSource;
+                _previewCommandTokenSource = null;
+                oldTokenSource.Dispose();
             }
         }
 
@@ -134,7 +151,10 @@ namespace Computer_Science_Final_Task.ViewModels
         {
             try
             {
-                var content = await _model.GetPreviousFile();
+                _previewCommandTokenSource?.Cancel();
+                _nextCommandTokenSource?.Cancel();
+                _previousCommandTokenSource = new CancellationTokenSource();
+                var content = await _model.GetPreviousFile(_previousCommandTokenSource.Token);
                 ShowContent(content);
                 SwitchButtons();
                 RefreshPagination();
@@ -142,6 +162,12 @@ namespace Computer_Science_Final_Task.ViewModels
             catch (Exception e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
+            }
+            finally
+            {
+                var oldTokenSource = _previousCommandTokenSource;
+                _previousCommandTokenSource = null;
+                oldTokenSource.Dispose();
             }
         }
 
@@ -150,7 +176,10 @@ namespace Computer_Science_Final_Task.ViewModels
         {
             try
             {
-                var content = await _model.GetNextFile();
+                _previewCommandTokenSource?.Cancel();
+                _previousCommandTokenSource?.Cancel();
+                _nextCommandTokenSource = new CancellationTokenSource();
+                var content = await _model.GetNextFile(_nextCommandTokenSource.Token);
                 ShowContent(content);
                 SwitchButtons();
                 RefreshPagination();
@@ -158,6 +187,12 @@ namespace Computer_Science_Final_Task.ViewModels
             catch (Exception e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
+            }
+            finally
+            {
+                var oldTokenSource = _nextCommandTokenSource;
+                _nextCommandTokenSource = null;
+                oldTokenSource.Dispose();
             }
         }
 
