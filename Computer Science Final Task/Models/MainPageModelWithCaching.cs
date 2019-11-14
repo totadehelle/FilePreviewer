@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Caching;
 using Computer_Science_Final_Task.Content;
 using DataAccessLayer;
@@ -24,7 +25,7 @@ namespace Computer_Science_Final_Task.Models
             _cache.OnCacheOverflow += TrimCache;
         }
 
-        public async Task<IContent> GetNewFile(string path)
+        public async Task<IContent> GetNewFile(string path, CancellationToken token)
         {
             if (_cache.Get(path) is IContent cachedContent)
             {
@@ -34,12 +35,12 @@ namespace Computer_Science_Final_Task.Models
                 return cachedContent;
             }
 
-            var content = await _baseModel.GetNewFile(path);
+            var content = await _baseModel.GetNewFile(path, token);
             _cache.Add(path, content);
             return content;
         }
         
-        public async Task<IContent> GetNextFile()
+        public async Task<IContent> GetNextFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetNext();
             BrowsingHistory.CurrentIndex++;
@@ -48,13 +49,13 @@ namespace Computer_Science_Final_Task.Models
             var newNextPath = BrowsingHistory.GetNext();
             if (_cache.Contains(newNextPath)) return _cache.Get(path) as IContent;
 
-            var newNextContent = await _baseModel.GetNextFile();
+            var newNextContent = await _baseModel.GetNextFile(token);
             BrowsingHistory.CurrentIndex--;
             _cache.Add(newNextPath, newNextContent);
             return _cache.Get(path) as IContent;
         }
 
-        public async Task<IContent> GetPreviousFile()
+        public async Task<IContent> GetPreviousFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetPrevious();
             BrowsingHistory.CurrentIndex--;
@@ -63,7 +64,7 @@ namespace Computer_Science_Final_Task.Models
             var newPreviousPath = BrowsingHistory.GetPrevious();
             if (_cache.Contains(newPreviousPath)) return _cache.Get(path) as IContent;
 
-            var newNextContent = await _baseModel.GetPreviousFile();
+            var newNextContent = await _baseModel.GetPreviousFile(token);
             BrowsingHistory.CurrentIndex++;
             _cache.Add(newPreviousPath, newNextContent);
             return _cache.Get(path) as IContent;

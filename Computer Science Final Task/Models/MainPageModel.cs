@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -37,40 +38,46 @@ namespace Computer_Science_Final_Task.Models
             _repository = repository;
         }
 
-        public async Task<IContent> GetNewFile(string path)
+        public async Task<IContent> GetNewFile(string path, CancellationToken token)
         {
-            var content = await GetContent(path);
+            //Task need to be awaited here for adding to history only valid file paths
+            token.ThrowIfCancellationRequested();
+            var content = await GetContent(path, token);
             bool newFileIsAdded = BrowsingHistory.Add(path);
             if (BrowsingHistory.Count != 1 && newFileIsAdded)
                BrowsingHistory.CurrentIndex++;
             return content;
         }
 
-        public async Task<IContent> GetNextFile()
+        public async Task<IContent> GetNextFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetNext();
-            var content = await GetContent(path);
+            //Task need to be awaited here for adding to history only valid file paths
+            var content = await GetContent(path, token);
             BrowsingHistory.CurrentIndex++;
             return content;
         }
 
-        public async Task<IContent> GetPreviousFile()
+        public async Task<IContent> GetPreviousFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetPrevious();
-            var content = await GetContent(path);
+            //Task need to be awaited here for adding to history only valid file paths
+            var content = await GetContent(path, token);
             BrowsingHistory.CurrentIndex--;
             return content;
         }
 
-        private async Task<IContent> GetContent(string path)
+        private async Task<IContent> GetContent(string path, CancellationToken token)
         {
             var ext = Path.GetExtension(path);
             if (!ValidateFileType(ext))
                 throw new Exception($"Files of type {ext} are not supported");
 
+            token.ThrowIfCancellationRequested();
             var file = await StorageFile.GetFileFromPathAsync(path);
             var stream = await file.OpenStreamForReadAsync();
 
+            token.ThrowIfCancellationRequested();
             var content = await _repository.GetContentAsync(stream);
             return _contentFormatters[ext].Invoke(content);
         }
