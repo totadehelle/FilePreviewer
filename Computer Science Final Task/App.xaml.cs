@@ -1,10 +1,20 @@
 ﻿using System;
+using System.IO;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Autofac;
+using Caching;
+using Computer_Science_Final_Task.Models;
+using Computer_Science_Final_Task.ViewModels;
 using Computer_Science_Final_Task.Views;
+using DataAccessLayer;
+using GalaSoft.MvvmLight.Views;
+using Logging;
+using Logging.FileOutput;
 
 namespace Computer_Science_Final_Task
 {
@@ -17,10 +27,33 @@ namespace Computer_Science_Final_Task
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
+
+        public static IContainer Container { get; set; }
+
         public App()
         {
             this.InitializeComponent();
+            Container = ConfigureDI();
+            ConfigureLogging();
             this.Suspending += OnSuspending;
+        }
+
+        private IContainer ConfigureDI()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterType<NavigationService>().As<INavigationService>().InstancePerLifetimeScope();
+            builder.RegisterType<MainPageViewModel>().AsSelf().InstancePerDependency();
+            builder.RegisterType<MainPageModelWithCaching>().As<IMainPageModel>().InstancePerDependency();
+            builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<FileRepository>().As<IRepository>().InstancePerDependency();
+            return builder.Build();
+        }
+
+        private void ConfigureLogging()
+        {
+            Log.GetBuilder().SetMinimumLevel(LogLevel.Warning)
+                .WriteToFile(Path.Combine(ApplicationData.Current.LocalFolder.Path, "Logs", "CSFinalTask-.txt"))
+                .BuildLogger();
         }
 
         /// <summary>
