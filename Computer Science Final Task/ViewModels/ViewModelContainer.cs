@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Caching;
 using Computer_Science_Final_Task.Models;
+using DataAccessLayer;
 using GalaSoft.MvvmLight.Views;
 
 namespace Computer_Science_Final_Task.ViewModels
@@ -14,8 +15,10 @@ namespace Computer_Science_Final_Task.ViewModels
             var builder = new ContainerBuilder();
             builder.RegisterType<NavigationService>().As<INavigationService>().InstancePerLifetimeScope();
             builder.RegisterType<MainPageViewModel>().AsSelf().InstancePerDependency();
-            builder.RegisterType<MainPageModel>().As<IMainPageModel>().InstancePerDependency();
+            builder.RegisterType<MainPageModelWithCaching>().As<IMainPageModel>().InstancePerDependency();
             builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<History>().AsSelf().InstancePerDependency();
+            builder.RegisterType<FileRepository>().As<IRepository>().InstancePerDependency();
             Container = builder.Build();
         }
 
