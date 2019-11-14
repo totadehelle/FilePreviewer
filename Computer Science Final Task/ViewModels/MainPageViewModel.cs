@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Input;
 using Windows.UI.Popups;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 using Computer_Science_Final_Task.Content;
 using Computer_Science_Final_Task.Models;
@@ -30,6 +31,8 @@ namespace Computer_Science_Final_Task.ViewModels
         private string _filePath;
         private bool _nextEnabled;
         private bool _previousEnabled;
+        private Visibility _imageContentIsVisible;
+        private Visibility _textContentIsVisible;
 
         public string TextSource {
             get => _textSource;
@@ -39,7 +42,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("TextSource");
             }
         }
-
         public BitmapImage ImageSource
         {
             get => _imageSource;
@@ -49,7 +51,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("ImageSource");
             }
         }
-        
         public int CurrentFileNumber
         {
             get => _currentFileNumber;
@@ -59,7 +60,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("CurrentFileNumber");
             }
         }
-
         public int TotalFilesNumber
         {
             get => _totalFilesNumber;
@@ -69,7 +69,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("TotalFilesNumber");
             }
         }
-
         public string FilePath
         {
             get => _filePath;
@@ -79,7 +78,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("FilePath");
             }
         }
-
         public bool NextEnabled
         {
             get => _nextEnabled;
@@ -89,7 +87,6 @@ namespace Computer_Science_Final_Task.ViewModels
                 RaisePropertyChanged("NextEnabled");
             }
         }
-
         public bool PreviousEnabled
         {
             get => _previousEnabled;
@@ -97,6 +94,25 @@ namespace Computer_Science_Final_Task.ViewModels
             {
                 _previousEnabled = value;
                 RaisePropertyChanged("PreviousEnabled");
+            }
+        }
+        public Visibility ImageContentIsVisible
+        {
+            get => _imageContentIsVisible;
+            set
+            {
+                _imageContentIsVisible = value;
+                RaisePropertyChanged("ImageContentIsVisible");
+            }
+        }
+
+        public Visibility TextContentIsVisible
+        {
+            get => _textContentIsVisible;
+            set
+            {
+                _textContentIsVisible = value;
+                RaisePropertyChanged("TextContentIsVisible");
             }
         }
 
@@ -205,14 +221,20 @@ namespace Computer_Science_Final_Task.ViewModels
         
         private void ShowText(IContent content)
         {
+            ImageContentIsVisible = Visibility.Collapsed;
             var concreteContent = content as TextContent;
+            TextSource = null;
             TextSource = concreteContent?.Text;
+            TextContentIsVisible = Visibility.Visible;
         }
 
         private void ShowImage(IContent content)
         {
+            TextContentIsVisible = Visibility.Collapsed;
             var concreteContent = content as ImageContent;
+            ImageSource = null;
             ImageSource = concreteContent?.Image;
+            ImageContentIsVisible = Visibility.Visible;
         }
 
         private bool ValidatePath(string path)
