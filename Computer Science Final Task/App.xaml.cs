@@ -21,7 +21,7 @@ namespace Computer_Science_Final_Task
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    sealed partial class App : Application
+    sealed partial class App
     {
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -36,6 +36,15 @@ namespace Computer_Science_Final_Task
             Container = ConfigureDI();
             ConfigureLogging();
             this.Suspending += OnSuspending;
+            Current.UnhandledException += Current_UnhandledExceptionHandler;
+        }
+
+        private void Current_UnhandledExceptionHandler(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            var exception = e.Exception;
+            Log.Fatal("Application terminated with unhandled exception", exception);
+            Log.Close();
+            Container.Dispose();
         }
 
         private IContainer ConfigureDI()
@@ -44,14 +53,14 @@ namespace Computer_Science_Final_Task
             builder.RegisterType<NavigationService>().As<INavigationService>().InstancePerLifetimeScope();
             builder.RegisterType<MainPageViewModel>().AsSelf().InstancePerDependency();
             builder.RegisterType<MainPageModelWithCaching>().As<IMainPageModel>().InstancePerDependency();
-            builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerDependency();
             builder.RegisterType<FileRepository>().As<IRepository>().InstancePerDependency();
             return builder.Build();
         }
 
         private void ConfigureLogging()
         {
-            Log.GetBuilder().SetMinimumLevel(LogLevel.Warning)
+            Log.GetBuilder().SetMinimumLevel(LogLevel.Fatal)
                 .WriteToFile(Path.Combine(ApplicationData.Current.LocalFolder.Path, "Logs", "CSFinalTask-.txt"))
                 .BuildLogger();
         }

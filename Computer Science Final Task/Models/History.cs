@@ -38,21 +38,21 @@ namespace Computer_Science_Final_Task.Models
         public string GetCurrent()
         {
             if (Count <= 0)
-                throw new Exception("History is empty, there is no current file");
+                throw new ApplicationException("History is empty, there is no current file, but it was requested");
             return _paths[CurrentIndex];
         }
 
         public string GetNext()
         {
             if (!NextFileExists)
-                throw new Exception("There is no next file, but it was requested");
+                throw new ApplicationException("There is no next file, but it was requested");
             return _paths[CurrentIndex+1];
         }
 
         public string GetPrevious()
         {
             if (!PreviousFileExists)
-                throw new Exception("There is no previous file, but it was requested");
+                throw new ApplicationException("There is no previous file, but it was requested");
             return _paths[CurrentIndex-1];
         }
     }
