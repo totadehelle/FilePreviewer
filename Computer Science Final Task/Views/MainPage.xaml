@@ -6,38 +6,25 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="739" Width="1031">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="739" Width="739">
 
     <Grid Margin="10,0,10,10">
-        <TextBox x:Name="PathBox" Text ="{Binding FilePath, Mode=TwoWay}" HorizontalAlignment="Left" Margin="35,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="57" Width="618" RenderTransformOrigin="0.508,-1.725" PlaceholderText="Input full path to the file"/>
-        <Button x:Name="PreviewButton" Command="{Binding PreviewCommand}" Content="Preview" Margin="717,46,0,0" VerticalAlignment="Top" Height="57" Width="180"/>
-        <Button x:Name="NextButton" Command="{Binding NextCommand}" IsEnabled="{Binding NextEnabled}" Content="Next" Margin="928,369,0,0" VerticalAlignment="Top" Height="60" Width="75"/>
-        <Button x:Name="PreviousButton" Command="{Binding PreviousCommand}" IsEnabled="{Binding PreviousEnabled}" Content="Previous" Margin="10,364,0,0" VerticalAlignment="Top" Height="60" Width="75"/>
-        <Border BorderBrush="Gray" BorderThickness="4" Margin="567,136,114,73">
-            <Viewbox Margin="6,34,14,0" MaxHeight="492" MaxWidth="310" Height="499" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
-                <Viewbox.RenderTransform>
-                    <CompositeTransform ScaleX="1" ScaleY="-1"/>
-                </Viewbox.RenderTransform>
-                <Image x:Name="ImagePreview" Source="{Binding ImageSource}" Width="353" Height="559" RenderTransformOrigin="0.5,0.5">
-                    <Image.RenderTransform>
-                        <CompositeTransform ScaleY="-1"/>
-                    </Image.RenderTransform>
-                </Image>
+        <TextBox x:Name="PathBox" Text ="{Binding FilePath, Mode=TwoWay}" BorderBrush="Lavender" BorderThickness="3" HorizontalAlignment="Left" Margin="10,46,0,0" VerticalAlignment="Top" TextWrapping="Wrap" Height="57" Width="550" RenderTransformOrigin="0.508,-1.725" PlaceholderText="Input full path to the file"/>
+        <Button x:Name="PreviewButton" Command="{Binding PreviewCommand}" Content="Preview" Background="Lavender" Margin="0,46,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Height="57" Width="120"/>
+        <Button x:Name="NextButton" Command="{Binding NextCommand}" IsEnabled="{Binding NextEnabled}" Content="Next" Background="Lavender" Margin="0,0,10,0" HorizontalAlignment="Right" Height="57" Width="75"/>
+        <Button x:Name="PreviousButton" Command="{Binding PreviousCommand}" IsEnabled="{Binding PreviousEnabled}" Content="Previous" Background="Lavender" Margin="10,0,0,0" Height="57" Width="75"/>
+        <Border BorderBrush="Lavender" BorderThickness="3" Margin="0,40,0,0" HorizontalAlignment="Center" Height ="500" Width="500">
+            <Viewbox>
+                <Image x:Name="ImagePreview" Source="{Binding ImageSource}" Width="500" Height="500" Stretch="Uniform" Visibility="{Binding ImageContentIsVisible}"></Image>
             </Viewbox>
         </Border>
-        <Border BorderBrush="Gray" BorderThickness="4" Margin="91,136,557,73">
-            <ScrollViewer Margin="2,-4,0,6" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="339">
-                <ScrollViewer.RenderTransform>
-                    <CompositeTransform ScaleX="-1"/>
-                </ScrollViewer.RenderTransform>
-                <TextBlock x:Name="TextPreview" Text="{Binding TextSource}" Height="504" RenderTransformOrigin="0.5,0.5" Width="330">
-                    <TextBlock.RenderTransform>
-                        <CompositeTransform ScaleX="-1"/>
-                    </TextBlock.RenderTransform></TextBlock>
+        <Border BorderBrush="Lavender" BorderThickness="3" Margin="0,40,0,0" HorizontalAlignment="Center" Height ="500" Width="500">
+            <ScrollViewer Visibility="{Binding TextContentIsVisible}">
+                <TextBlock x:Name="TextPreview" Text="{Binding TextSource}" Visibility="{Binding TextContentIsVisible}" TextWrapping="WrapWholeWords"></TextBlock>
             </ScrollViewer>
         </Border>
-        <Border BorderBrush="Gray" BorderThickness="4" HorizontalAlignment="Center" Margin="0,669,0,0" VerticalAlignment="Top" Height="39" Width="134">
-            <StackPanel Orientation="Horizontal">
+        <Border BorderBrush="Lavender" BorderThickness="3" HorizontalAlignment="Center" Margin="0,669,0,0" VerticalAlignment="Top" Height="40" Width="70">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding CurrentFileNumber}"/>
                 <TextBlock>/</TextBlock>
                 <TextBlock Text="{Binding TotalFilesNumber}"/>
