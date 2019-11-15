@@ -9,6 +9,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 using Computer_Science_Final_Task.Content;
+using Computer_Science_Final_Task.Exceptions;
 using DataAccessLayer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,7 +63,8 @@ namespace Computer_Science_Final_Task.Models
             catch (FileNotFoundException e)
             {
                 BrowsingHistory.Remove(path);
-                throw;
+                throw new InvalidHistoryException("Next file is not found, probably it was deleted " +
+                                                  "or its name was changed. History is refreshed");
             }
         }
 
@@ -76,11 +78,12 @@ namespace Computer_Science_Final_Task.Models
                 BrowsingHistory.CurrentIndex--;
                 return content;
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
                 BrowsingHistory.Remove(path);
                 BrowsingHistory.CurrentIndex--;
-                throw;
+                throw new InvalidHistoryException("Previous file is not found, probably it was deleted " +
+                                                  "or its name was changed. History is refreshed");
             }
         }
 
@@ -88,7 +91,7 @@ namespace Computer_Science_Final_Task.Models
         {
             var ext = Path.GetExtension(path);
             if (!ValidateFileType(ext))
-                throw new Exception($"Files of type {ext} are not supported");
+                throw new NotSupportedException($"Files of type {ext} are not supported");
 
             token.ThrowIfCancellationRequested();
             var file = await StorageFile.GetFileFromPathAsync(path);

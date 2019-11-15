@@ -7,6 +7,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 using Computer_Science_Final_Task.Content;
+using Computer_Science_Final_Task.Exceptions;
 using Computer_Science_Final_Task.Models;
 using Computer_Science_Final_Task.Utilities;
 using GalaSoft.MvvmLight;
@@ -16,7 +17,7 @@ namespace Computer_Science_Final_Task.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         private readonly IMainPageModel _model;
-        private readonly Dictionary<ContentTypes, Action<IContent>> _contentShowers;
+        private readonly Dictionary<ContentTypes, Action<IContent>> _contentPresenters;
 
         private CancellationTokenSource _previewCommandTokenSource;
         private CancellationTokenSource _nextCommandTokenSource;
@@ -121,7 +122,7 @@ namespace Computer_Science_Final_Task.ViewModels
         public MainPageViewModel(IMainPageModel model)
         {
             _model = model;
-            _contentShowers = new Dictionary<ContentTypes, Action<IContent>>
+            _contentPresenters = new Dictionary<ContentTypes, Action<IContent>>
             {
                 {ContentTypes.Text, ShowText}, 
                 {ContentTypes.Image, ShowImage}
@@ -140,7 +141,7 @@ namespace Computer_Science_Final_Task.ViewModels
                 _previewCommandTokenSource = new CancellationTokenSource();
                 if (!ValidatePath(path))
                 {
-                    await new MessageDialog($"{path} is not valid file path").ShowAsync();
+                    await new MessageDialog($"'{path}' is not valid file path").ShowAsync();
                     return;
                 }
 
@@ -149,15 +150,24 @@ namespace Computer_Science_Final_Task.ViewModels
                 SwitchButtons();
                 RefreshPagination();
             }
-
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
             }
+            catch (NotSupportedException e)
+            {
+                await new MessageDialog(e.Message).ShowAsync();
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                await new MessageDialog("Please grant the application access to the file system. " +
+                                        "Go to: Start -> Settings -> Privacy -> File system. Set 'On' for 'Allow apps" +
+                                        "to access your file system' section and for 'Computer Science Final Task' in " +
+                                        "bottom section.").ShowAsync();
+            }
             finally
             {
-                var oldTokenSource = _previewCommandTokenSource;
-                _previewCommandTokenSource = null;
+                var oldTokenSource = Interlocked.Exchange(ref _previewCommandTokenSource, null);
                 oldTokenSource.Dispose();
             }
         }
@@ -172,17 +182,24 @@ namespace Computer_Science_Final_Task.ViewModels
                 _previousCommandTokenSource = new CancellationTokenSource();
                 var content = await _model.GetPreviousFile(_previousCommandTokenSource.Token);
                 ShowContent(content);
-                SwitchButtons();
-                RefreshPagination();
             }
-            catch (Exception e)
+            
+            catch (InvalidHistoryException e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
             }
+            catch (UnauthorizedAccessException e)
+            {
+                await new MessageDialog("Please grant the application access to the file system. " +
+                                        "Go to: Start -> Settings -> Privacy -> File system. Set 'On' for 'Allow apps" +
+                                        "to access your file system' section and for 'Computer Science Final Task' in " +
+                                        "bottom section.").ShowAsync();
+            }
             finally
             {
-                var oldTokenSource = _previousCommandTokenSource;
-                _previousCommandTokenSource = null;
+                SwitchButtons();
+                RefreshPagination();
+                var oldTokenSource = Interlocked.Exchange(ref _previousCommandTokenSource, null);
                 oldTokenSource.Dispose();
             }
         }
@@ -197,17 +214,24 @@ namespace Computer_Science_Final_Task.ViewModels
                 _nextCommandTokenSource = new CancellationTokenSource();
                 var content = await _model.GetNextFile(_nextCommandTokenSource.Token);
                 ShowContent(content);
-                SwitchButtons();
-                RefreshPagination();
+                
             }
-            catch (Exception e)
+            catch (InvalidHistoryException e)
             {
                 await new MessageDialog(e.Message).ShowAsync();
             }
+            catch (UnauthorizedAccessException e)
+            {
+                await new MessageDialog("Please grant the application access to the file system. " +
+                                        "Go to: Start -> Settings -> Privacy -> File system. Set 'On' for 'Allow apps" +
+                                        "to access your file system' section and for 'Computer Science Final Task' in " +
+                                        "bottom section.").ShowAsync();
+            }
             finally
             {
-                var oldTokenSource = _nextCommandTokenSource;
-                _nextCommandTokenSource = null;
+                SwitchButtons();
+                RefreshPagination();
+                var oldTokenSource = Interlocked.Exchange(ref _nextCommandTokenSource, null);
                 oldTokenSource.Dispose();
             }
         }
@@ -216,7 +240,7 @@ namespace Computer_Science_Final_Task.ViewModels
 
         private void ShowContent(IContent content)
         {
-           _contentShowers[content.Type].Invoke(content);
+           _contentPresenters[content.Type].Invoke(content);
         }
         
         private void ShowText(IContent content)
