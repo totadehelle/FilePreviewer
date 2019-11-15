@@ -18,6 +18,7 @@ namespace Computer_Science_Final_Task.ViewModels
     {
         private readonly IMainPageModel _model;
         private readonly Dictionary<ContentTypes, Action<IContent>> _contentPresenters;
+        private readonly History _history;
 
         private CancellationTokenSource _previewCommandTokenSource;
         private CancellationTokenSource _nextCommandTokenSource;
@@ -119,9 +120,10 @@ namespace Computer_Science_Final_Task.ViewModels
 
         #endregion
 
-        public MainPageViewModel(IMainPageModel model)
+        public MainPageViewModel(IMainPageModel model, History history)
         {
             _model = model;
+            _history = history;
             _contentPresenters = new Dictionary<ContentTypes, Action<IContent>>
             {
                 {ContentTypes.Text, ShowText}, 
@@ -280,14 +282,14 @@ namespace Computer_Science_Final_Task.ViewModels
 
         private void SwitchButtons()
         {
-            NextEnabled = _model.NextFileExists;
-            PreviousEnabled = _model.PreviousFileExists;
+            NextEnabled = _history.NextFileExists;
+            PreviousEnabled = _history.PreviousFileExists;
         }
 
         private void RefreshPagination()
         {
-            CurrentFileNumber = _model.CurrentFileNumber;
-            TotalFilesNumber = _model.TotalFilesNumber;
+            CurrentFileNumber = _history.CurrentIndex+1;
+            TotalFilesNumber = _history.Count;
         }
     }
 }

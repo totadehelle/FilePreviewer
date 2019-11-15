@@ -20,16 +20,11 @@ namespace Computer_Science_Final_Task.Models
     {
         private readonly Dictionary<string, Func<byte[], IContent>> _contentFormatters;
         private readonly IRepository _repository;
-        public History BrowsingHistory { get; }
+        private readonly History _history;
 
-        public int CurrentFileNumber => BrowsingHistory.CurrentIndex + 1;
-        public int TotalFilesNumber => BrowsingHistory.Count;
-        public bool NextFileExists => BrowsingHistory.NextFileExists;
-        public bool PreviousFileExists => BrowsingHistory.PreviousFileExists;
-
-        public MainPageModel(IRepository repository)
+        public MainPageModel(IRepository repository, History history)
         {
-            BrowsingHistory = new History();
+            _history = history;
             _contentFormatters = new Dictionary<string, Func<byte[], IContent>>
             {
                 {".txt", FormatPlainTextContent}, 
@@ -44,25 +39,25 @@ namespace Computer_Science_Final_Task.Models
             //Task need to be awaited here for adding to history only valid file paths
             token.ThrowIfCancellationRequested();
             var content = await GetContent(path, token);
-            bool newFileIsAdded = BrowsingHistory.Add(path);
-            if (BrowsingHistory.Count != 1 && newFileIsAdded)
-               BrowsingHistory.CurrentIndex++;
+            bool newFileIsAdded = _history.Add(path);
+            if (_history.Count != 1 && newFileIsAdded)
+               _history.CurrentIndex++;
             return content;
         }
 
         public async Task<IContent> GetNextFile(CancellationToken token)
         {
-            var path = BrowsingHistory.GetNext();
+            var path = _history.GetNext();
             try
             {
                 //Task need to be awaited here for adding to history only valid file paths
                 var content = await GetContent(path, token);
-                BrowsingHistory.CurrentIndex++;
+                _history.CurrentIndex++;
                 return content;
             }
             catch (FileNotFoundException e)
             {
-                BrowsingHistory.Remove(path);
+                _history.Remove(path);
                 throw new InvalidHistoryException("Next file is not found, probably it was deleted " +
                                                   "or its name was changed. History is refreshed");
             }
@@ -70,18 +65,18 @@ namespace Computer_Science_Final_Task.Models
 
         public async Task<IContent> GetPreviousFile(CancellationToken token)
         {
-            var path = BrowsingHistory.GetPrevious();
+            var path = _history.GetPrevious();
             try
             {
                 //Task need to be awaited here for adding to history only valid file paths
                 var content = await GetContent(path, token);
-                BrowsingHistory.CurrentIndex--;
+                _history.CurrentIndex--;
                 return content;
             }
             catch (FileNotFoundException e)
             {
-                BrowsingHistory.Remove(path);
-                BrowsingHistory.CurrentIndex--;
+                _history.Remove(path);
+                _history.CurrentIndex--;
                 throw new InvalidHistoryException("Previous file is not found, probably it was deleted " +
                                                   "or its name was changed. History is refreshed");
             }

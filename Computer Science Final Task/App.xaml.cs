@@ -55,6 +55,7 @@ namespace Computer_Science_Final_Task
             builder.RegisterType<MainPageModelWithCaching>().As<IMainPageModel>().InstancePerDependency();
             builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerDependency();
             builder.RegisterType<FileRepository>().As<IRepository>().InstancePerDependency();
+            builder.RegisterType<History>().AsSelf().SingleInstance();
             return builder.Build();
         }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Computer_Science_Final_Task.Models
+namespace Computer_Science_Final_Task.ViewModels
 {
     public class History
     {

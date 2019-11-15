@@ -125,7 +125,7 @@
     <Compile Include="Content\ContentTypes.cs" />
     <Compile Include="Exceptions\InvalidHistoryException.cs" />
     <Compile Include="Models\MainPageModelWithCaching.cs" />
-    <Compile Include="Models\History.cs" />
+    <Compile Include="ViewModels\History.cs" />
     <Compile Include="Models\IMainPageModel.cs" />
     <Compile Include="Models\MainPageModel.cs" />
     <Compile Include="Utilities\CommandHandler.cs" />
