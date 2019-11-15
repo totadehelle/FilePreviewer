@@ -1,28 +1,24 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Caching;
-using Computer_Science_Final_Task.Content;
 using DataAccessLayer;
 
-namespace Computer_Science_Final_Task.Models
+namespace Core.Models
 {
     public class MainPageModelWithCaching : IMainPageModel
     {
         private readonly MainPageModel _baseModel;
         private readonly ICacheProvider _cache;
         private string[] FilesToCache => GetPreviousCurrentAndNextPaths();
+        private readonly History _history;
+        private bool NextFileExists => _history.NextFileExists;
+        private bool PreviousFileExists => _history.PreviousFileExists;
 
-        public History BrowsingHistory => _baseModel.BrowsingHistory;
-        public int CurrentFileNumber => _baseModel.CurrentFileNumber;
-        public int TotalFilesNumber => _baseModel.TotalFilesNumber;
-        public bool NextFileExists => _baseModel.NextFileExists;
-        public bool PreviousFileExists => _baseModel.PreviousFileExists;
-
-        public MainPageModelWithCaching(IRepository repository, ICacheProvider cache)
+        public MainPageModelWithCaching(IRepository repository, ICacheProvider cache, History history)
         {
-            _baseModel = new MainPageModel(repository);
+            _history = history;
+            _baseModel = new MainPageModel(repository, _history);
             _cache = cache;
             _cache.OnCacheOverflow += TrimCache;
         }
@@ -31,9 +27,9 @@ namespace Computer_Science_Final_Task.Models
         {
             if (_cache.Get(path) is IContent cachedContent)
             {
-                var newFileIsAdded = BrowsingHistory.Add(path);
-                if (BrowsingHistory.Count != 1 && newFileIsAdded)
-                    BrowsingHistory.CurrentIndex++;
+                var newFileIsAdded = _history.Add(path);
+                if (_history.Count != 1 && newFileIsAdded)
+                    _history.CurrentIndex++;
                 return cachedContent;
             }
 
@@ -44,11 +40,11 @@ namespace Computer_Science_Final_Task.Models
         
         public async Task<IContent> GetNextFile(CancellationToken token)
         {
-            var path = BrowsingHistory.GetNext();
-            BrowsingHistory.CurrentIndex++;
+            var path = _history.GetNext();
+            _history.CurrentIndex++;
             if (!NextFileExists) return _cache.Get(path) as IContent;
 
-            var newNextPath = BrowsingHistory.GetNext();
+            var newNextPath = _history.GetNext();
             if (_cache.Contains(newNextPath)) return _cache.Get(path) as IContent;
 
             bool cachingIsCompleted = false;
@@ -62,10 +58,10 @@ namespace Computer_Science_Final_Task.Models
                 }
                 catch (FileNotFoundException e)
                 {
-                    BrowsingHistory.Remove(newNextPath);
+                    _history.Remove(newNextPath);
                     cachingIsCompleted = !NextFileExists;
                     if(!cachingIsCompleted)
-                        newNextPath = BrowsingHistory.GetNext();
+                        newNextPath = _history.GetNext();
                 }
             }
             return _cache.Get(path) as IContent;
@@ -73,11 +69,11 @@ namespace Computer_Science_Final_Task.Models
 
         public async Task<IContent> GetPreviousFile(CancellationToken token)
         {
-            var path = BrowsingHistory.GetPrevious();
-            BrowsingHistory.CurrentIndex--;
+            var path = _history.GetPrevious();
+            _history.CurrentIndex--;
             if (!PreviousFileExists) return _cache.Get(path) as IContent;
 
-            var newPreviousPath = BrowsingHistory.GetPrevious();
+            var newPreviousPath = _history.GetPrevious();
             if (_cache.Contains(newPreviousPath)) return _cache.Get(path) as IContent;
 
             bool cachingIsCompleted = false;
@@ -91,11 +87,11 @@ namespace Computer_Science_Final_Task.Models
                 }
                 catch (FileNotFoundException e)
                 {
-                    BrowsingHistory.Remove(newPreviousPath);
-                    BrowsingHistory.CurrentIndex--;
+                    _history.Remove(newPreviousPath);
+                    _history.CurrentIndex--;
                     cachingIsCompleted = !PreviousFileExists;
                     if (!cachingIsCompleted)
-                        newPreviousPath = BrowsingHistory.GetNext();
+                        newPreviousPath = _history.GetNext();
                 }
             }
             return _cache.Get(path) as IContent;
@@ -106,12 +102,12 @@ namespace Computer_Science_Final_Task.Models
             if (!PreviousFileExists)
             {
                 return !NextFileExists 
-                    ? new[]{BrowsingHistory.GetCurrent()} 
-                    : new [] { BrowsingHistory.GetCurrent(), BrowsingHistory.GetNext() };
+                    ? new[]{ _history.GetCurrent()} 
+                    : new [] { _history.GetCurrent(), _history.GetNext() };
             }
             return !NextFileExists
-                ? new[] { BrowsingHistory.GetCurrent(), BrowsingHistory.GetPrevious() }
-                : new [] { BrowsingHistory.GetCurrent(), BrowsingHistory.GetNext(), BrowsingHistory.GetPrevious() };
+                ? new[] { _history.GetCurrent(), _history.GetPrevious() }
+                : new [] { _history.GetCurrent(), _history.GetNext(), _history.GetPrevious() };
         }
 
         private void TrimCache()

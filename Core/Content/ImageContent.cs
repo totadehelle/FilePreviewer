@@ -1,6 +1,6 @@
 ﻿using Windows.UI.Xaml.Media.Imaging;
 
-namespace Computer_Science_Final_Task.Content
+namespace Core
 {
     public class ImageContent : IContent
     {

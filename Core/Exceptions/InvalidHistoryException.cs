@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Computer_Science_Final_Task.Exceptions
+namespace Core
 {
     public class InvalidHistoryException : Exception
     {

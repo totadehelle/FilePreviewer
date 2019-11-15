@@ -8,9 +8,10 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using Autofac;
 using Caching;
-using Computer_Science_Final_Task.Models;
 using Computer_Science_Final_Task.ViewModels;
 using Computer_Science_Final_Task.Views;
+using Core;
+using Core.Models;
 using DataAccessLayer;
 using GalaSoft.MvvmLight.Views;
 using Logging;
@@ -55,6 +56,7 @@ namespace Computer_Science_Final_Task
             builder.RegisterType<MainPageModelWithCaching>().As<IMainPageModel>().InstancePerDependency();
             builder.RegisterType<InMemoryCacheProvider>().As<ICacheProvider>().InstancePerDependency();
             builder.RegisterType<FileRepository>().As<IRepository>().InstancePerDependency();
+            builder.RegisterType<History>().AsSelf().SingleInstance();
             return builder.Build();
         }
 
