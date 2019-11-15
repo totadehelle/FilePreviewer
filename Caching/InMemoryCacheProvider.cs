@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 
 
@@ -45,9 +46,7 @@ namespace Caching
 
         public void Clear()
         {
-            var newCache = new MemoryCache(new MemoryCacheOptions());
-            var oldCache = _cache;
-            _cache = newCache;
+            var oldCache = Interlocked.Exchange(ref _cache, new MemoryCache(new MemoryCacheOptions()));
             oldCache.Dispose();
         }
 
@@ -58,6 +57,11 @@ namespace Caching
             {
                 Remove(key);
             }
+        }
+        
+        public void Dispose()
+        {
+            _cache.Dispose();
         }
     }
 }
