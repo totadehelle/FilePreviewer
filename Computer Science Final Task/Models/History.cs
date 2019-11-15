@@ -30,6 +30,11 @@ namespace Computer_Science_Final_Task.Models
             return true;
         }
 
+        public void Remove(string path)
+        {
+            _paths.Remove(path);
+        }
+
         public string GetCurrent()
         {
             if (Count <= 0)

@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Caching;
 using Computer_Science_Final_Task.Content;
@@ -49,9 +51,23 @@ namespace Computer_Science_Final_Task.Models
             var newNextPath = BrowsingHistory.GetNext();
             if (_cache.Contains(newNextPath)) return _cache.Get(path) as IContent;
 
-            var newNextContent = await _baseModel.GetNextFile(token);
-            BrowsingHistory.CurrentIndex--;
-            _cache.Add(newNextPath, newNextContent);
+            bool cachingIsCompleted = false;
+            while (!cachingIsCompleted)
+            {
+                try
+                {
+                    var newNextContent = await _baseModel.GetContent(newNextPath, token);
+                    _cache.Add(newNextPath, newNextContent);
+                    cachingIsCompleted = true;
+                }
+                catch (FileNotFoundException e)
+                {
+                    BrowsingHistory.Remove(newNextPath);
+                    cachingIsCompleted = !NextFileExists;
+                    if(!cachingIsCompleted)
+                        newNextPath = BrowsingHistory.GetNext();
+                }
+            }
             return _cache.Get(path) as IContent;
         }
 
@@ -64,9 +80,24 @@ namespace Computer_Science_Final_Task.Models
             var newPreviousPath = BrowsingHistory.GetPrevious();
             if (_cache.Contains(newPreviousPath)) return _cache.Get(path) as IContent;
 
-            var newNextContent = await _baseModel.GetPreviousFile(token);
-            BrowsingHistory.CurrentIndex++;
-            _cache.Add(newPreviousPath, newNextContent);
+            bool cachingIsCompleted = false;
+            while (!cachingIsCompleted)
+            {
+                try
+                {
+                    var newPreviousContent = await _baseModel.GetContent(newPreviousPath, token);
+                    _cache.Add(newPreviousPath, newPreviousContent);
+                    cachingIsCompleted = true;
+                }
+                catch (FileNotFoundException e)
+                {
+                    BrowsingHistory.Remove(newPreviousPath);
+                    BrowsingHistory.CurrentIndex--;
+                    cachingIsCompleted = !PreviousFileExists;
+                    if (!cachingIsCompleted)
+                        newPreviousPath = BrowsingHistory.GetNext();
+                }
+            }
             return _cache.Get(path) as IContent;
         }
 

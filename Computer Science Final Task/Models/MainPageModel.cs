@@ -52,22 +52,39 @@ namespace Computer_Science_Final_Task.Models
         public async Task<IContent> GetNextFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetNext();
-            //Task need to be awaited here for adding to history only valid file paths
-            var content = await GetContent(path, token);
-            BrowsingHistory.CurrentIndex++;
-            return content;
+            try
+            {
+                //Task need to be awaited here for adding to history only valid file paths
+                var content = await GetContent(path, token);
+                BrowsingHistory.CurrentIndex++;
+                return content;
+            }
+            catch (FileNotFoundException e)
+            {
+                BrowsingHistory.Remove(path);
+                throw;
+            }
         }
 
         public async Task<IContent> GetPreviousFile(CancellationToken token)
         {
             var path = BrowsingHistory.GetPrevious();
-            //Task need to be awaited here for adding to history only valid file paths
-            var content = await GetContent(path, token);
-            BrowsingHistory.CurrentIndex--;
-            return content;
+            try
+            {
+                //Task need to be awaited here for adding to history only valid file paths
+                var content = await GetContent(path, token);
+                BrowsingHistory.CurrentIndex--;
+                return content;
+            }
+            catch (Exception e)
+            {
+                BrowsingHistory.Remove(path);
+                BrowsingHistory.CurrentIndex--;
+                throw;
+            }
         }
 
-        private async Task<IContent> GetContent(string path, CancellationToken token)
+        public async Task<IContent> GetContent(string path, CancellationToken token)
         {
             var ext = Path.GetExtension(path);
             if (!ValidateFileType(ext))
