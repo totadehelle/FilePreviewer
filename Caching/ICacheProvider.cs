@@ -2,7 +2,7 @@
 
 namespace Caching
 {
-    public interface ICacheProvider
+    public interface ICacheProvider : IDisposable
     {
         event Action OnCacheOverflow;
         object Get(string key);
