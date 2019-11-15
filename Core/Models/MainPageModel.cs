@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
-using Computer_Science_Final_Task.Content;
-using Computer_Science_Final_Task.Exceptions;
 using DataAccessLayer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Computer_Science_Final_Task.Models
+namespace Core.Models
 {
     public class MainPageModel : IMainPageModel
     {

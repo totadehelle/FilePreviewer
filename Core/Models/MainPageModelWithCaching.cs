@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Caching;
-using Computer_Science_Final_Task.Content;
 using DataAccessLayer;
 
-namespace Computer_Science_Final_Task.Models
+namespace Core.Models
 {
     public class MainPageModelWithCaching : IMainPageModel
     {

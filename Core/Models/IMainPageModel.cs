@@ -1,9 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Computer_Science_Final_Task.Content;
-using Computer_Science_Final_Task.ViewModels;
 
-namespace Computer_Science_Final_Task.Models
+namespace Core.Models
 {
     public interface IMainPageModel
     {

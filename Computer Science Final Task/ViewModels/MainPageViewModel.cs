@@ -6,10 +6,8 @@ using System.Windows.Input;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
-using Computer_Science_Final_Task.Content;
-using Computer_Science_Final_Task.Exceptions;
-using Computer_Science_Final_Task.Models;
-using Computer_Science_Final_Task.Utilities;
+using Core;
+using Core.Models;
 using GalaSoft.MvvmLight;
 
 namespace Computer_Science_Final_Task.ViewModels
@@ -240,11 +238,12 @@ namespace Computer_Science_Final_Task.ViewModels
 
         #endregion
 
+        #region Content_presenters
         private void ShowContent(IContent content)
         {
-           _contentPresenters[content.Type].Invoke(content);
+            _contentPresenters[content.Type].Invoke(content);
         }
-        
+
         private void ShowText(IContent content)
         {
             ImageContentIsVisible = Visibility.Collapsed;
@@ -262,6 +261,7 @@ namespace Computer_Science_Final_Task.ViewModels
             ImageSource = concreteContent?.Image;
             ImageContentIsVisible = Visibility.Visible;
         }
+        #endregion
 
         private bool ValidatePath(string path)
         {

@@ -1,4 +1,4 @@
-﻿namespace Computer_Science_Final_Task.Content
+﻿namespace Core
 {
     public interface IContent
     {
