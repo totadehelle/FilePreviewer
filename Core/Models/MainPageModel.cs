@@ -95,11 +95,12 @@ namespace Core.Models
             return _contentFormatters[ext].Invoke(content);
         }
 
+        #region Content_formatters
         private IContent FormatPlainTextContent(byte[] content)
         {
             var text = Encoding.UTF8.GetString(content);
-            
-            return new TextContent(){Text = text};
+
+            return new TextContent() { Text = text };
         }
 
         private IContent FormatJsonContent(byte[] content)
@@ -107,7 +108,7 @@ namespace Core.Models
             var token = JToken.Parse(Encoding.UTF8.GetString(content));
             var indentedText = token.ToString(Formatting.Indented);
 
-            return new TextContent(){Text = indentedText };
+            return new TextContent() { Text = indentedText };
         }
 
         private IContent FormatImageContent(byte[] content)
@@ -119,8 +120,9 @@ namespace Core.Models
                 stream.Seek(0);
                 image.SetSource(stream);
             }
-            return new ImageContent(){Image = image};
+            return new ImageContent() { Image = image };
         }
+        #endregion
 
         private bool ValidateFileType(string extension)
         {
